@@ -1,0 +1,30 @@
+{
+  "name": "psychob/ethereum-address-validator",
+  "description": "Validate etheruem address",
+  "type": "library",
+  "require": {
+    "kornrunner/keccak": "^1.0",
+    "php": "^7.2"
+  },
+  "license": "MPL-2.0",
+  "authors": [
+    {
+      "name": "Andrzej Budzanowski",
+      "email": "kontakt@andrzej.budzanowski.pl"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "PsychoB\\Ethereum\\": "./src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\PsychoB\\Ethereum\\": "./tests"
+    }
+  }
+  "minimum-stability": "stable",
+  "require-dev": {
+    "phpunit/phpunit": "^7.2"
+  }
+}

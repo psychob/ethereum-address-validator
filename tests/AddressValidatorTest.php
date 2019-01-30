@@ -7,21 +7,65 @@ use PsychoB\Ethereum\AddressValidator;
 
 class AddressValidatorTest extends TestCase
 {
-    public function testIsValid()
+    public function providerTestIsValid()
     {
-        $this->assertEquals(AddressValidator::ADDRESS_VALID, AddressValidator::isValid('0x3b6969198Aa794AAc16feEEa051a345BD806A16e'));
-        $this->assertEquals(AddressValidator::ADDRESS_CHECKSUM_INVALID, AddressValidator::isValid('0x3b6969198aa794AAc16feEEa051a345BD806A16e'));
-        $this->assertEquals(AddressValidator::ADDRESS_INVALID, AddressValidator::isValid('0x3b6969198aa794AAc16feEEa051a'));
-        $this->assertEquals(AddressValidator::ADDRESS_INVALID, AddressValidator::isValid('0x3b6969198Aa794AAc16feEEa051a345BD806A16eAAc'));
-        $this->assertEquals(AddressValidator::ADDRESS_VALID, AddressValidator::isValid('0x3b6969198aa794aac16feeea051a345bd806a16e'));
+        return [
+            ['0xA477941c7AAD6536f175ef123bf9eeD6F82A4c85'], // with checksum
+            ['0xa477941c7aad6536f175ef123bf9eed6f82a4c85'], // without checksum, lower case
+            ['0xA477941C7AAD6536F175EF123BF9EED6F82A4C85'], // without checksum, upper case
+        ];
     }
 
-    public function testIsCanonical()
+    /** @dataProvider providerTestIsValid */
+    public function testIsValid(string $address)
     {
-        $this->assertEquals('0x3b6969198Aa794AAc16feEEa051a345BD806A16e', AddressValidator::getCanonicalAddress('0x3b6969198Aa794AAc16feEEa051a345BD806A16e'));
-        $this->assertEquals('0x3b6969198Aa794AAc16feEEa051a345BD806A16e', AddressValidator::getCanonicalAddress('0x3b6969198aa794AAc16feEEa051a345BD806A16e'));
-        $this->assertNull(AddressValidator::getCanonicalAddress('0x3b6969198aa794AAc16feEEa051a'));
-        $this->assertNull(AddressValidator::getCanonicalAddress('0x3b6969198Aa794AAc16feEEa051a345BD806A16eAAc'));
-        $this->assertEquals('0x3b6969198Aa794AAc16feEEa051a345BD806A16e', AddressValidator::getCanonicalAddress('0x3b6969198aa794aac16feeea051a345bd806a16e'));
+        $this->assertEquals(AddressValidator::ADDRESS_VALID, AddressValidator::isValid($address));
+    }
+
+    public function providerTestIsInValidChecksum()
+    {
+        return [
+            ['0xA477941c7aad6536f175ef123bf9eeD6F82A4c85'], // invalid checksum, capitalisation
+            ['0xA477941c7aFd6536f175ef123bf9eeD6F82A4c85'], // invalid checksum, wrong address
+        ];
+    }
+
+    /** @dataProvider providerTestIsInValidChecksum */
+    public function testIsInValidChecksum(string $address)
+    {
+        $this->assertEquals(AddressValidator::ADDRESS_CHECKSUM_INVALID, AddressValidator::isValid($address));
+    }
+
+    public function providerTestIsInvalid()
+    {
+        return [
+            ['0xA477941c7AAD6536f175ef123bf9eeD6F82A4c8'], // too short address
+            ['0xA477941c7AAD6536f175ef123bf9eeD6F82A4c856'], // address too long
+            [''],
+        ];
+    }
+
+    /** @dataProvider providerTestIsInvalid */
+    public function testIsInvalid(string $address)
+    {
+        $this->assertEquals(AddressValidator::ADDRESS_INVALID, AddressValidator::isValid($address));
+    }
+
+    public function providerTestGetCanonical()
+    {
+        return [
+            ['0xA477941c7AAD6536f175ef123bf9eeD6F82A4c85', '0xA477941c7AAD6536f175ef123bf9eeD6F82A4c85'],
+            ['0xa477941c7aad6536f175ef123bf9eed6f82a4c85', '0xA477941c7AAD6536f175ef123bf9eeD6F82A4c85'],
+            ['0xA477941C7AAD6536F175EF123BF9EED6F82A4C85', '0xA477941c7AAD6536f175ef123bf9eeD6F82A4c85'],
+            ['0xA477941c7aad6536f175ef123bf9eeD6F82A4c85', '0xA477941c7AAD6536f175ef123bf9eeD6F82A4c85'],
+            ['0xA477941c7aFd6536f175ef123bf9eeD6F82A4c85', '0xa477941c7aFD6536f175ef123bf9eed6f82A4C85'],
+            ['', null],
+        ];
+    }
+
+    /** @dataProvider providerTestGetCanonical */
+    public function testGetCanonical(string $address, $result)
+    {
+        $this->assertEquals($result, AddressValidator::getCanonicalAddress($address));
     }
 }

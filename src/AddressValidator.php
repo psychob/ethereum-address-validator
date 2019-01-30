@@ -6,10 +6,28 @@ use kornrunner\Keccak;
 
 class AddressValidator
 {
+    /**
+     * String is a valid Ethereum or Etherum Classic address
+     */
     public const ADDRESS_VALID = 0;
+
+    /**
+     * String have valid address, but capitalization is incorrect.
+     */
     public const ADDRESS_CHECKSUM_INVALID = 1;
+
+    /**
+     * String is not an Ethereum or Ethereum Classic address
+     */
     public const ADDRESS_INVALID = 2;
 
+    /**
+     * Check if string is Ethereum or Ethereum Classic address
+     *
+     * @param string $address
+     *
+     * @return int
+     */
     public static function isValid(string $address): int
     {
         if (!preg_match('/^0x[a-fA-F0-9]{40}$/', $address)) {
@@ -40,6 +58,13 @@ class AddressValidator
         return self::ADDRESS_VALID;
     }
 
+    /**
+     * Generate address with checksum from non-checksumed address.
+     *
+     * @param string $address
+     *
+     * @return string|null
+     */
     public static function getCanonicalAddress(string $address): ?string
     {
         if (!preg_match('/^0x[a-fA-F0-9]{40}$/', $address)) {
